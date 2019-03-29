@@ -2,7 +2,7 @@ package com.example.demo.service;
 
 
 import com.example.demo.dao.DiaryDao;
-import com.example.demo.entity.Diary;
+import com.example.demo.entity.DiaryEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +16,14 @@ import java.util.List;
 public class DiaryService {
     @Autowired
     private DiaryDao diaryDao;
-    public List<Diary>  getAllDiaries() {
+    public List<DiaryEntity>  getAllDiaries() {
+
         return diaryDao.getList();
     }
-    public void addDiary(Diary diary) {
+    public void addDiary(DiaryEntity diary) {
         diaryDao.addDiary(diary);
+    }
+    public void deleteDiaryByiId(String id) {
+        diaryDao.deleteDiaryById(id);
     }
 }
