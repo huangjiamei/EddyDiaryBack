@@ -1,22 +1,23 @@
 package com.example.demo.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
- * Created by damei on 19/3/30.
+ * Created by damei on 19/4/5.
  */
 @Entity
 @Table(name = "diary", schema = "EddyDiary", catalog = "")
-public class DiaryEntity {
+public class DiaryEntity implements Serializable{
     private String tag;
-    private String date;
+    private String ddate;
     private String location;
     private String mood;
     private String content;
     private int diaryid;
     private String isprivate;
     private String week;
-    private String time;
+    private String dtime;
     private String diarypicture;
     private UserEntity userByUserid;
 
@@ -31,13 +32,13 @@ public class DiaryEntity {
     }
 
     @Basic
-    @Column(name = "date")
-    public String getDate() {
-        return date;
+    @Column(name = "ddate")
+    public String getDdate() {
+        return ddate;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDdate(String ddate) {
+        this.ddate = ddate;
     }
 
     @Basic
@@ -101,13 +102,13 @@ public class DiaryEntity {
     }
 
     @Basic
-    @Column(name = "time")
-    public String getTime() {
-        return time;
+    @Column(name = "dtime")
+    public String getDtime() {
+        return dtime;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setDtime(String dtime) {
+        this.dtime = dtime;
     }
 
     @Basic
@@ -129,13 +130,13 @@ public class DiaryEntity {
 
         if (diaryid != that.diaryid) return false;
         if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
-        if (date != null ? !date.equals(that.date) : that.date != null) return false;
+        if (ddate != null ? !ddate.equals(that.ddate) : that.ddate != null) return false;
         if (location != null ? !location.equals(that.location) : that.location != null) return false;
         if (mood != null ? !mood.equals(that.mood) : that.mood != null) return false;
         if (content != null ? !content.equals(that.content) : that.content != null) return false;
         if (isprivate != null ? !isprivate.equals(that.isprivate) : that.isprivate != null) return false;
         if (week != null ? !week.equals(that.week) : that.week != null) return false;
-        if (time != null ? !time.equals(that.time) : that.time != null) return false;
+        if (dtime != null ? !dtime.equals(that.dtime) : that.dtime != null) return false;
         if (diarypicture != null ? !diarypicture.equals(that.diarypicture) : that.diarypicture != null) return false;
 
         return true;
@@ -144,14 +145,14 @@ public class DiaryEntity {
     @Override
     public int hashCode() {
         int result = tag != null ? tag.hashCode() : 0;
-        result = 31 * result + (date != null ? date.hashCode() : 0);
+        result = 31 * result + (ddate != null ? ddate.hashCode() : 0);
         result = 31 * result + (location != null ? location.hashCode() : 0);
         result = 31 * result + (mood != null ? mood.hashCode() : 0);
         result = 31 * result + (content != null ? content.hashCode() : 0);
         result = 31 * result + diaryid;
         result = 31 * result + (isprivate != null ? isprivate.hashCode() : 0);
         result = 31 * result + (week != null ? week.hashCode() : 0);
-        result = 31 * result + (time != null ? time.hashCode() : 0);
+        result = 31 * result + (dtime != null ? dtime.hashCode() : 0);
         result = 31 * result + (diarypicture != null ? diarypicture.hashCode() : 0);
         return result;
     }

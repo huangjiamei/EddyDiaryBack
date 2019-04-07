@@ -1,15 +1,19 @@
 package com.example.demo.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.example.demo.entity.DiaryEntity;
 import com.example.demo.service.DiaryService;
+import com.example.demo.util.HttpClientUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.*;
 
+import com.example.demo.entity.UserEntity;
 /**
  * Created by damei on 19/2/27.
  */
@@ -18,122 +22,131 @@ import java.util.List;
 public class DiaryController {
     @Autowired
     private DiaryService diaryService;
-/*
-    static public class DiaryFront {
-        String date;
-        String week;
-        String time;
-        String mood;
-        String content;
 
-        public String getDate() {
-            return date;
+    //Map userMap = new HashMap();
+    UserEntity user = new UserEntity();
+
+
+    @RequestMapping("/login")
+    @ResponseBody
+    public void login (@RequestBody String infoData, HttpServletRequest request) {
+        System.out.println(infoData);
+        JSONObject info = JSONObject.parseObject(infoData);
+        String code = (String) info.get("code");
+        String encryptedData = (String) info.get("encryptedData");
+        String  iv =  (String) info.get("iv");
+        String nickName = (String) info.get("nickName");
+        String avatarUrl = (String) info.get("avatarUrl");
+
+        if(!StringUtils.isNotBlank(code)){
+            //return ResultData.build(202,"未获取到用户凭证code");
+            System.out.println("未获取到用户凭证code");
         }
+        String appid = "wx85a319f39e4fa599";
+        String appSecret = "fdc0cf46b22f3d2f8cd627463d454f7a";
+        String apiUrl="https://api.weixin.qq.com/sns/jscode2session?appid="+appid+"&secret="+appSecret+"&js_code="+code+"&grant_type=authorization_code";
+        System.out.println(apiUrl);
+        String responseBody = HttpClientUtil.doGet(apiUrl);
+        System.out.println(responseBody);
+        JSONObject jsonObject = JSON.parseObject(responseBody);
+        String openid = jsonObject.get("openid").toString();
+        user.setUserid(openid);
+        user.setUsername(nickName);
+        user.setUserpicture(avatarUrl);
+        System.out.println(user.toString());
+        if(StringUtils.isNotBlank(jsonObject.getString("openid"))&&StringUtils.isNotBlank(jsonObject.getString("session_key"))){
+            /*
+            //解密获取用户信息
+            JSONObject userInfoJSON= WechatGetUserInfoUtil.getUserInfo(encryptedData,jsonObject.getString("session_key"),iv);
+            if(userInfoJSON!=null){
+                //这步应该set进实体类
+                List<UserEntity> userEntityList = diaryService.getAllUsers();
+                if(userEntityList != null) {
+                    List<String> ids = new ArrayList<String>();
+                    for(UserEntity userEntity : userEntityList) {
+                        ids.add(userEntity.getUserid());
+                    }
+                    if(!ids.contains(userInfoJSON.get("openId").toString())) {
+                        user.setUserid(userInfoJSON.get("openId").toString());
+                        user.setUsername(userInfoJSON.get("nickName").toString());
+                        user.setUserpicture(userInfoJSON.get("avatarUrl").toString());
+                        diaryService.addUser(user);
+                    }
+                }else {
+                        user.setUserid(userInfoJSON.get("openId").toString());
+                        user.setUsername(userInfoJSON.get("nickName").toString());
+                        user.setUserpicture(userInfoJSON.get("avatarUrl").toString());
+                        diaryService.addUser(user);
+                }
 
-        public void setDate(String date) {
-            this.date = date;
+                */
+
+            List<UserEntity> userEntityList = diaryService.getAllUsers();
+            if(userEntityList != null) {
+                List<String> ids = new ArrayList<String>();
+                for(UserEntity userEntity : userEntityList) {
+                    ids.add(userEntity.getUserid());
+                }
+                System.out.println(ids);
+                if(!ids.contains(openid)) {
+
+                    diaryService.addUser(user);
+                }
+            }else {
+                diaryService.addUser(user);
+            }
+            System.out.println("登陆成功");
+            }
+            /*else{
+                //return ResultData.build(202,"解密失败");
+                System.out.println("解密失败");
+            }
+
         }
+        */else{
+            //return ResultData.build(202,"未获取到用户openid 或 session");
+            System.out.println("未获取到用户openid 或 session");
 
-        public String getWeek() {
-            return week;
         }
-
-        public void setWeek(String week) {
-            this.week = week;
-        }
-
-        public String getTime() {
-            return time;
-        }
-
-        public void setTime(String time) {
-            this.time = time;
-        }
-
-        public String getMood() {
-            return mood;
-        }
-
-        public void setMood(String mood) {
-            this.mood = mood;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public String getTag() {
-            return tag;
-        }
-
-        public void setTag(String tag) {
-            this.tag = tag;
-        }
-
-        String tag;
 
     }
-*/
+
+
+
     @RequestMapping("/diary") //配置url映射，作用在方法上
+    //@GetMapping("/diary")
     @ResponseBody
     public List<DiaryEntity> getDiaries() {
-        /*
-        ArrayList<DiaryFront> diaryFrontList = new ArrayList<DiaryFront>();
-        List<Diary> diaryList = diaryService.getAllDiaries();
-        for (Diary diary : diaryList) {
-            DiaryFront diaryFront = new DiaryFront();
-            diaryFront.setDate(String.valueOf(diary.getDatetime().getDate()));
-            String week = null;
-            switch(diary.getDatetime().getDay()) {
-                case 0 : week = "周日"; break;
-                case 1 : week = "周一"; break;
-                case 2 : week = "周二"; break;
-                case 3 : week = "周三"; break;
-                case 4 : week = "周四"; break;
-                case 5 : week = "周五"; break;
-                case 6 : week = "周六"; break;
-            }
-            diaryFront.setWeek(week);
-            String hour = String.valueOf(diary.getDatetime().getHours());
-            String minute = String.valueOf(diary.getDatetime().getMinutes());
-            diaryFront.setTime(hour + ":" + minute);
-            diaryFront.setTag(diary.getTag());
-            diaryFront.setMood(diary.getMood());
-            diaryFront.setContent(diary.getContent());
-            diaryFrontList.add(diaryFront);
-        }
-        return diaryFrontList;
-        */
+
         return diaryService.getAllDiaries();
     }
 
 
-
+    //@PostMapping("/adddiary")
     @RequestMapping("/adddiary")
     @ResponseBody
     public void addDiary(HttpServletRequest request) {
         DiaryEntity diary = new DiaryEntity();
         diary.setIsprivate(request.getParameter("isPrivate"));
-        diary.setDate(request.getParameter("date"));
-        diary.setTime(request.getParameter("time"));
+        diary.setDdate(request.getParameter("date"));
+        diary.setDtime(request.getParameter("time"));
         diary.setWeek(request.getParameter("week"));
         diary.setLocation(request.getParameter("location"));
         diary.setMood(request.getParameter("mood"));
         diary.setContent(request.getParameter("content"));
         diary.setTag(request.getParameter("tag"));
         diary.setDiarypicture(request.getParameter("diarypicture"));
+        diary.setUserByUserid(user);
         diaryService.addDiary(diary);
         //System.out.println(request.getParameter("date"));
 
     }
 
+    //@PostMapping("deletediary")
     @RequestMapping("/deletediary")
     @ResponseBody
     public void deleteDiaryById (HttpServletRequest request) {
-        diaryService.deleteDiaryByiId(request.getParameter("formData"));
+        System.out.println(request.getParameter("diaryid"));
+        diaryService.deleteDiaryByiId(request.getParameter("diaryid"));
     }
 }
